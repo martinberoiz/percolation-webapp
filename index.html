@@ -5,11 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Percolation Demo</title>
     <script type="module" src="src/perc.js"></script>
+    <link rel="stylesheet" href="public/styles.css" />
   </head>
   <body>
-    <h1>Percolation Demo</h1>
-    <canvas id="perc-window" width="1000" height="1000">
-      Your browser does not support the canvas tag.
-    </canvas>
+    <div class="container">
+      <h1>Percolation Demo</h1>
+      <canvas id="perc-window" width="1000" height="1000">
+        Your browser does not support the canvas tag.
+      </canvas>
+
+      <form id="perc-controls" class="controls">
+        <div class="form-group">
+          <label for="speed">Percolation Speed:</label>
+          <input
+            type="range"
+            id="speed"
+            name="speed"
+            min="0"
+            max="100"
+            step="1"
+            value="0"
+            list="speed-values"
+          />
+          <datalist id="speed-values">
+            <option value="0" label="100ms"></option>
+            <option value="33" label="200ms"></option>
+            <option value="66" label="500ms"></option>
+            <option value="100" label="1s"></option>
+          </datalist>
+
+          <span id="speed-value">100ms</span>
+        </div>
+
+        <div class="form-group">
+          <label for="grid-size">Grid Size:</label>
+          <input
+            type="number"
+            id="grid-size"
+            name="grid-size"
+            min="5"
+            max="50"
+            value="10"
+          />
+        </div>
+
+        <button type="button" id="perc-button">Percolate</button>
+      </form>
+    </div>
   </body>
 </html>

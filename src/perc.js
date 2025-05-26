@@ -1,18 +1,56 @@
 import Grid from "./Grid.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const grid = new Grid();
-  grid.setGridSide(10);
+  let GRID_SIZE = 10;
+  const CELL_SIZE = 20;
+  let simulationTimer = null;
+  let grid = null;
 
   const percCanvas = document.getElementById("perc-window");
   const ctx = percCanvas.getContext("2d");
+  const speedInput = document.getElementById("speed");
+  const speedValue = document.getElementById("speed-value");
+  const gridSizeInput = document.getElementById("grid-size");
+  const percButton = document.getElementById("perc-button");
 
-  const GRID_SIZE = 10;
-  const CELL_SIZE = 20;
+  // Convert linear slider value to logarithmic speed
+  function getSpeedFromSlider(value) {
+    // Convert 0-100 to 100-1000ms logarithmically
+    const minSpeed = 100;
+    const maxSpeed = 1000;
+    const minLog = Math.log(minSpeed);
+    const maxLog = Math.log(maxSpeed);
+    const scale = (maxLog - minLog) / 100;
+    return Math.round(Math.exp(minLog + scale * value));
+  }
 
-  // Set canvas size based on grid
-  percCanvas.width = GRID_SIZE * CELL_SIZE;
-  percCanvas.height = GRID_SIZE * CELL_SIZE;
+  // Update speed display
+  speedInput.addEventListener("input", () => {
+    const speed = getSpeedFromSlider(speedInput.value);
+    speedValue.textContent = speed < 1000 ? `${speed}ms` : `${speed/1000}s`;
+  });
+
+  function resetSimulation() {
+    // Clear any existing timer
+    if (simulationTimer) {
+      clearInterval(simulationTimer);
+      simulationTimer = null;
+    }
+
+    // Clear canvas
+    ctx.clearRect(0, 0, percCanvas.width, percCanvas.height);
+
+    // Set canvas size based on grid
+    percCanvas.width = GRID_SIZE * CELL_SIZE;
+    percCanvas.height = GRID_SIZE * CELL_SIZE;
+
+    // Create new grid instance
+    grid = new Grid();
+    grid.setGridSide(GRID_SIZE);
+
+    // Draw empty grid
+    drawGrid();
+  }
 
   // Draw empty grid
   function drawGrid() {
@@ -28,18 +66,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fill a specific cell
   function openSite(row, col) {
+    if (grid.grid[row][col] === 1) return; // Skip if already open
+
     ctx.fillStyle = "#4169E1"; // Royal Blue
     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     // Redraw the grid lines
     ctx.strokeStyle = "black";
     ctx.strokeRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    
     grid.openSite(row, col);
+    
     if (grid.didPercolate()) {
       console.log("Percolated!");
+      if (simulationTimer) {
+        clearInterval(simulationTimer);
+        simulationTimer = null;
+      }
     }
   }
 
-  // Handle clicks
+  // Handle clicks on canvas
   percCanvas.addEventListener("click", (event) => {
     const col = Math.floor(event.offsetX / CELL_SIZE);
     const row = Math.floor(event.offsetY / CELL_SIZE);
@@ -50,6 +96,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Initial grid drawing
-  drawGrid();
+  // Handle percolate button click
+  percButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    
+    // Update grid size from input
+    const newSize = parseInt(gridSizeInput.value);
+    if (newSize >= 5 && newSize <= 50) {
+      GRID_SIZE = newSize;
+    }
+    
+    resetSimulation();
+    
+    const speed = getSpeedFromSlider(speedInput.value);
+    simulationTimer = setInterval(() => {
+      const row = Math.floor(Math.random() * GRID_SIZE);
+      const col = Math.floor(Math.random() * GRID_SIZE);
+      openSite(row, col);
+    }, speed);
+  });
+
+  // Initial setup
+  resetSimulation();
 });
