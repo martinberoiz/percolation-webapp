@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const speedValue = document.getElementById("speed-value");
   const gridSizeInput = document.getElementById("grid-size");
   const percButton = document.getElementById("perc-button");
+  const percMessage = document.querySelector(".perc-message");
 
   // Convert linear slider value to logarithmic speed
   function getSpeedFromSlider(value) {
@@ -27,8 +28,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update speed display
   speedInput.addEventListener("input", () => {
     const speed = getSpeedFromSlider(speedInput.value);
-    speedValue.textContent = speed < 1000 ? `${speed}ms` : `${speed/1000}s`;
+    speedValue.textContent = speed < 1000 ? `${speed}ms` : `${speed / 1000}s`;
   });
+
+  function showMessage(message, type = "success") {
+    percMessage.textContent = message;
+    percMessage.className = "perc-message show " + type;
+  }
+
+  function clearMessage() {
+    percMessage.className = "perc-message";
+    percMessage.textContent = "";
+  }
 
   function resetSimulation() {
     // Clear any existing timer
@@ -36,6 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
       clearInterval(simulationTimer);
       simulationTimer = null;
     }
+
+    // Clear message
+    clearMessage();
 
     // Clear canvas
     ctx.clearRect(0, 0, percCanvas.width, percCanvas.height);
@@ -73,11 +87,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Redraw the grid lines
     ctx.strokeStyle = "black";
     ctx.strokeRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    
+
     grid.openSite(row, col);
-    
+
     if (grid.didPercolate()) {
-      console.log("Percolated!");
+      showMessage(
+        "Percolation achieved! Water can now flow from top to bottom."
+      );
       if (simulationTimer) {
         clearInterval(simulationTimer);
         simulationTimer = null;
@@ -99,16 +115,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle percolate button click
   percButton.addEventListener("click", (e) => {
     e.preventDefault();
-    
+
     // Update grid size from input
     const newSize = parseInt(gridSizeInput.value);
     if (newSize >= 5 && newSize <= 50) {
       GRID_SIZE = newSize;
     }
-    
+
     resetSimulation();
-    
+
     const speed = getSpeedFromSlider(speedInput.value);
+    showMessage("Simulation started - opening random sites...", "info");
     simulationTimer = setInterval(() => {
       const row = Math.floor(Math.random() * GRID_SIZE);
       const col = Math.floor(Math.random() * GRID_SIZE);

@@ -10,9 +10,20 @@
   <body>
     <div class="container">
       <h1>Percolation Demo</h1>
+      <p>
+        This demo is a visualization of a simple model of a percolation process,
+        the flow of water through a porous medium.
+      </p>
+      <p>
+        Click on the canvas to open a site, or click the "Percolate" button to
+        start the simulation.
+      </p>
+      <p>Adjust the speed of the simulation with the slider.</p>
+      <p>Set the grid size with the input field.</p>
       <canvas id="perc-window" width="1000" height="1000">
         Your browser does not support the canvas tag.
       </canvas>
+      <div class="perc-message"></div>
 
       <form id="perc-controls" class="controls">
         <div class="form-group">
