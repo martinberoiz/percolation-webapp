@@ -2,7 +2,7 @@ import Grid from "./Grid.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   let GRID_SIZE = 10;
-  const CELL_SIZE = 20;
+  let CELL_SIZE = 0; // Will be calculated based on canvas size
   let simulationTimer = null;
   let grid = null;
 
@@ -13,6 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const gridSizeInput = document.getElementById("grid-size");
   const percButton = document.getElementById("perc-button");
   const percMessage = document.querySelector(".perc-message");
+
+  // Calculate cell size based on canvas dimensions and grid size
+  function calculateCellSize() {
+    CELL_SIZE = Math.floor(Math.min(
+      percCanvas.width / GRID_SIZE,
+      percCanvas.height / GRID_SIZE
+    ));
+  }
 
   // Convert linear slider value to logarithmic speed
   function getSpeedFromSlider(value) {
@@ -54,9 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Clear canvas
     ctx.clearRect(0, 0, percCanvas.width, percCanvas.height);
 
-    // Set canvas size based on grid
-    percCanvas.width = GRID_SIZE * CELL_SIZE;
-    percCanvas.height = GRID_SIZE * CELL_SIZE;
+    // Calculate new cell size
+    calculateCellSize();
 
     // Create new grid instance
     grid = new Grid();
